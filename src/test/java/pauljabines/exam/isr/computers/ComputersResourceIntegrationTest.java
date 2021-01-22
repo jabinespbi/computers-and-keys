@@ -15,6 +15,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
 
@@ -68,5 +69,30 @@ public class ComputersResourceIntegrationTest extends JerseyTest {
         assertEquals(MODEL, jsonValue.getString("model"));
         assertEquals(LANGUAGE, jsonValue.getString("language"));
         assertThat(jsonValue.get("colors").toString(), containsString(COLOR));
+    }
+
+    @Test
+    public void create_JsonIncorrectColor_responseIsNotSupported() {
+        final String TYPE = "laptop";
+        final String MAKER = "ASUS";
+        final String MODEL = "ASUS";
+        final String LANGUAGE = "日本語";
+        final String COLOR = "incorrect";
+
+        JSONObject computerJsonValue = new JSONObject();
+        computerJsonValue.put("type", TYPE);
+        computerJsonValue.put("maker", MAKER);
+        computerJsonValue.put("model", MODEL);
+        computerJsonValue.put("language", LANGUAGE);
+        computerJsonValue.put("color", COLOR);
+
+        JSONObject computerJson = new JSONObject();
+        computerJson.put("computer", computerJsonValue);
+
+        Response response = target("/create_computer").request(MediaType.APPLICATION_JSON)
+                .post(Entity.json(computerJson.toString()));
+
+        assertEquals("Http Response should be 406 ", Response.Status.NOT_ACCEPTABLE.getStatusCode(), response.getStatus());
+        assertThat(response.readEntity(String.class), equalTo("Color is not supported!"));
     }
 }
