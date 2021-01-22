@@ -25,7 +25,6 @@ public class ApiClientResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     public Response create(ApiClientRequest apiClientRequest) {
-        try {
         ApiClientRequest.Status status = apiClientRequest.validate();
         if (status.equals(ApiClientRequest.Status.TYPE_NOT_SUPPORTED)) {
             return Response.status(406)
@@ -61,6 +60,6 @@ public class ApiClientResource {
             entityManager.close();
         }
 
-        return response;}catch (Exception e) {e.printStackTrace();}return null;
+        return response;
     }
 }
