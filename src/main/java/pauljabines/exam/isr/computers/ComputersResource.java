@@ -3,10 +3,7 @@ package pauljabines.exam.isr.computers;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.NoResultException;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -29,7 +26,7 @@ public class ComputersResource {
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     public Response create(ComputerRequest computerRequest) {
         ComputerRequest.Status status = computerRequest.validate();
-        if(status.equals(ComputerRequest.Status.COLOR_NOT_SUPPORTED)) {
+        if (status.equals(ComputerRequest.Status.COLOR_NOT_SUPPORTED)) {
             return Response.status(406)
                     .entity("Color is not supported!")
                     .build();
@@ -113,5 +110,39 @@ public class ComputersResource {
         }
 
         return response;
+    }
+
+    @GET
+    @Path("/computers/{maker}/{model}")
+    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    public Response get(
+            @PathParam("maker") String maker,
+            @PathParam("model") String model) {
+        Computer computer = findComputerByMakerModel(maker, model);
+
+        if (computer == null) {
+            return Response.status(200)
+                    .entity("No computer found!")
+                    .build();
+        }
+
+        return Response.status(200)
+                .entity(ComputerResponse.toComputerResponse(computer))
+                .build();
+    }
+
+    private Computer findComputerByMakerModel(String maker, String model) {
+        String query = "SELECT c FROM Computer c where c.maker = :maker " +
+                "AND c.model = :model";
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+
+        try {
+            return entityManager.createQuery(query, Computer.class)
+                    .setParameter("maker", maker)
+                    .setParameter("model", model)
+                    .getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }
     }
 }
