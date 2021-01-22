@@ -95,4 +95,19 @@ public class ComputersResourceIntegrationTest extends JerseyTest {
         assertEquals("Http Response should be 406 ", Response.Status.NOT_ACCEPTABLE.getStatusCode(), response.getStatus());
         assertThat(response.readEntity(String.class), equalTo("Color is not supported!"));
     }
+
+    @Test
+    public void create_JsonWithNull_responseIsNotAcceptable() {
+        JSONObject computerJsonValue = new JSONObject();
+        computerJsonValue.put("color", "silver");
+
+        JSONObject computerJson = new JSONObject();
+        computerJson.put("computer", computerJsonValue);
+
+        Response response = target("/create_computer").request(MediaType.APPLICATION_JSON)
+                .post(Entity.json(computerJson.toString()));
+
+        assertEquals("Http Response should be 406 ", Response.Status.NOT_ACCEPTABLE.getStatusCode(), response.getStatus());
+        assertThat(response.readEntity(String.class), equalTo("Null values encountered!"));
+    }
 }
