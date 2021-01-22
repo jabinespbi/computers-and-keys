@@ -1,0 +1,18 @@
+db:
+  image: "postgres:latest"
+  ports:
+    - "5435:5432"
+  restart: always
+  environment:
+    - POSTGRES_PASSWORD=javaDTElokixytytTz2094Knxurqk
+    - POSTGRES_USER=computerskeys
+    - POSTGRES_DATABASE=computerskeys
+db-test:
+  image: "postgres:latest"
+  ports:
+    - "5436:5432"
+  restart: always
+  environment:
+    - POSTGRES_PASSWORD=javaDTElokixytytTz2094Knxurqk
+    - POSTGRES_USER=computerskeys_test
+    - POSTGRES_DATABASE=computerskeys_test
