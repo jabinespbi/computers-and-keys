@@ -5,6 +5,8 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.UUID;
 
 /**
@@ -27,6 +29,16 @@ public class ApiClient implements Serializable {
     @Getter
     @Setter
     private Type type;
+
+    @Getter
+    private Timestamp createdTimestamp = Timestamp.from(Instant.now());
+
+    @Getter
+    private Timestamp updatedTimestamp = Timestamp.from(Instant.now());
+
+    public void updateTimestamp() {
+        updatedTimestamp = Timestamp.from(Instant.now());
+    }
 
     public enum Type {
         IT_USERS("IT User"),
