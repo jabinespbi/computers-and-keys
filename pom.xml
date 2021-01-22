@@ -78,6 +78,13 @@
             <version>${lombok.version}</version>
             <scope>provided</scope>
         </dependency>
+
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>${org.json.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -132,5 +139,6 @@
         <hibernate.version>6.0.0.Alpha4</hibernate.version>
         <postgresql.version>42.2.10</postgresql.version>
         <lombok.version>1.18.16</lombok.version>
+        <org.json.version>20201115</org.json.version>
     </properties>
 </project>
