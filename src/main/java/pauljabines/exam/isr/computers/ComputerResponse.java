@@ -1,5 +1,6 @@
 package pauljabines.exam.isr.computers;
 
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -7,6 +8,7 @@ import java.util.stream.Collectors;
 /**
  * @author Paul Benedict Jabines
  */
+@XmlRootElement
 public class ComputerResponse {
     public ComputerResponseBody computer;
 
