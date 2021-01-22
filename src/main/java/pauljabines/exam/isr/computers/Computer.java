@@ -9,6 +9,7 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * @author Paul Benedict Jabines
@@ -18,10 +19,13 @@ import java.util.List;
         @UniqueConstraint(columnNames = {"type", "maker", "model", "language"})
 })
 public class Computer implements Serializable {
-    @Getter
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
+
+    @Getter
+    @Column(unique = true)
+    private String uid = UUID.randomUUID().toString();
 
     @Getter
     @Setter
