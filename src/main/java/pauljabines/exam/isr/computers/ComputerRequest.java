@@ -1,5 +1,7 @@
 package pauljabines.exam.isr.computers;
 
+import lombok.Getter;
+
 /**
  * @author Paul Benedict Jabines
  */
@@ -18,6 +20,28 @@ public class ComputerRequest {
         return computer;
     }
 
+    public Status validate() {
+        if (computer == null) {
+            return Status.NULL_VALUES_ENCOUNTERED;
+        }
+
+        if (computer.type == null ||
+                computer.maker == null ||
+                computer.model == null ||
+                computer.language == null ||
+                computer.color == null) {
+            return Status.NULL_VALUES_ENCOUNTERED;
+        }
+
+        try {
+            Color.fromName(computer.color);
+        } catch (IllegalArgumentException e) {
+            return Status.COLOR_NOT_SUPPORTED;
+        }
+
+        return Status.OK;
+    }
+
     public static class ComputerRequestBody {
         public String type;
 
@@ -28,5 +52,18 @@ public class ComputerRequest {
         public String language;
 
         public String color;
+    }
+
+    public enum Status {
+        COLOR_NOT_SUPPORTED("Color not supported!"),
+        NULL_VALUES_ENCOUNTERED("Null values encountered"),
+        OK("Ok");
+
+        @Getter
+        private String description;
+
+        Status(String description) {
+            this.description = description;
+        }
     }
 }

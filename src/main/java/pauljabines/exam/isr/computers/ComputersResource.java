@@ -28,11 +28,14 @@ public class ComputersResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     public Response create(ComputerRequest computerRequest) {
-        try {
-            Color.fromName(computerRequest.computer.color);
-        } catch (IllegalArgumentException e) {
+        ComputerRequest.Status status = computerRequest.validate();
+        if(status.equals(ComputerRequest.Status.COLOR_NOT_SUPPORTED)) {
             return Response.status(406)
                     .entity("Color is not supported!")
+                    .build();
+        } else if (status.equals(ComputerRequest.Status.NULL_VALUES_ENCOUNTERED)) {
+            return Response.status(406)
+                    .entity("Null values encountered!")
                     .build();
         }
 
