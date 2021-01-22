@@ -4,8 +4,6 @@ import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import org.json.JSONObject;
 import org.junit.Test;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.TestInstance;
 
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
@@ -19,22 +17,15 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class ComputersResourceIntegrationTest extends JerseyTest {
-    EntityManagerFactory entityManagerFactory;
+    static EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("ComputersKeys_Test");
 
     @Override
     protected Application configure() {
         ResourceConfig config = new ResourceConfig();
-        entityManagerFactory = Persistence.createEntityManagerFactory("ComputersKeys_Test");
         ComputersResource computersResource = new ComputersResource(entityManagerFactory);
         config.register(computersResource);
         return config;
-    }
-
-    @AfterAll
-    public void tearDown() {
-        entityManagerFactory.close();
     }
 
     @Test
