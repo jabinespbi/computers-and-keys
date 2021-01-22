@@ -55,9 +55,6 @@ public class Computer implements Serializable {
     @Getter
     private Timestamp updatedTimestamp = Timestamp.from(Instant.now());
 
-    public Computer() {
-    }
-
     public void addColor(Color color) {
         this.colors.add(color);
     }
