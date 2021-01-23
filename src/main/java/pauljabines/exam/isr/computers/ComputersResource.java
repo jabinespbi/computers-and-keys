@@ -1,11 +1,16 @@
 package pauljabines.exam.isr.computers;
 
+import org.mindrot.jbcrypt.BCrypt;
+import pauljabines.exam.isr.sshkey.SshKey;
+
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.NoResultException;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Computer API.
@@ -25,6 +30,18 @@ public class ComputersResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     public Response create(ComputerRequest computerRequest, @HeaderParam("apikey") String apiKey) {
+        if (apiKey == null) {
+            return Response.status(403)
+                    .entity("Forbidden!")
+                    .build();
+        }
+
+        if (!shouldGrantAccess(apiKey)) {
+            return Response.status(403)
+                    .entity("Forbidden!")
+                    .build();
+        }
+
         ComputerRequest.Status status = computerRequest.validate();
         if (status.equals(ComputerRequest.Status.COLOR_NOT_SUPPORTED)) {
             return Response.status(406)
@@ -36,14 +53,18 @@ public class ComputersResource {
                     .build();
         }
 
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
-        Computer computer = findComputer(computerRequest, entityManager);
+        return createComputer(computerRequest);
+    }
+
+    private Response createComputer(ComputerRequest computerRequest) {
+        Computer computer = findComputer(computerRequest);
         if (computer != null) {
-            return addColor(computerRequest.computer.color, computer, entityManager);
+            return addColor(computerRequest.computer.color, computer);
         }
 
-        computer = computerRequest.toComputer();
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
 
+        computer = computerRequest.toComputer();
         Response response;
         try {
             entityManager.getTransaction().begin();
@@ -57,9 +78,8 @@ public class ComputersResource {
             if (entityManager.getTransaction().isActive()) {
                 entityManager.getTransaction().rollback();
             }
-            response = Response.status(500)
-                    .entity("Internal server error! ")
-                    .build();
+
+            throw e;
         } finally {
             entityManager.close();
         }
@@ -67,28 +87,34 @@ public class ComputersResource {
         return response;
     }
 
-    private Computer findComputer(ComputerRequest computerRequest, EntityManager entityManager) {
+    private Computer findComputer(ComputerRequest computerRequest) {
         String query = "SELECT c FROM Computer c where c.type = :type " +
                 "AND c.maker = :maker " +
                 "AND c.model = :model " +
                 "AND c.language = :language";
 
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        Computer computer = null;
         try {
-            return entityManager.createQuery(query, Computer.class)
+            computer = entityManager.createQuery(query, Computer.class)
                     .setParameter("type", computerRequest.computer.type)
                     .setParameter("maker", computerRequest.computer.maker)
                     .setParameter("model", computerRequest.computer.model)
                     .setParameter("language", computerRequest.computer.language)
                     .getSingleResult();
-        } catch (NoResultException e) {
-            return null;
+        } catch (NoResultException ignored) {
+        } finally {
+            entityManager.close();
         }
+
+        return computer;
     }
 
-    private Response addColor(String color, Computer computer, EntityManager entityManager) {
+    private Response addColor(String color, Computer computer) {
         computer.addColor(Color.fromName(color));
         computer.updateTimestamp();
 
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
         Response response;
         try {
             entityManager.getTransaction().begin();
@@ -103,9 +129,7 @@ public class ComputersResource {
                 entityManager.getTransaction().rollback();
             }
 
-            response = Response.status(500)
-                    .entity("Internal server error!")
-                    .build();
+            throw e;
         } finally {
             entityManager.close();
         }
@@ -135,15 +159,49 @@ public class ComputersResource {
     private Computer findComputerByMakerModel(String maker, String model) {
         String query = "SELECT c FROM Computer c where c.maker = :maker " +
                 "AND c.model = :model";
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
 
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        Computer computer = null;
         try {
-            return entityManager.createQuery(query, Computer.class)
+            computer = entityManager.createQuery(query, Computer.class)
                     .setParameter("maker", maker)
                     .setParameter("model", model)
                     .getSingleResult();
-        } catch (NoResultException e) {
-            return null;
+        } catch (NoResultException ignored) {
+        } finally {
+            entityManager.close();
         }
+
+        return computer;
+    }
+
+    private boolean shouldGrantAccess(String apiKey) {
+        String query = "SELECT s FROM SshKey s";
+
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        List<SshKey> sshKeys = new ArrayList<>();
+
+        try {
+            List<SshKey> sshKeysFromDb = entityManager.createQuery(query, SshKey.class)
+                    .getResultList();
+
+            sshKeys.addAll(sshKeysFromDb);
+        } catch (Exception e) {
+            if (entityManager.getTransaction().isActive()) {
+                entityManager.getTransaction().rollback();
+            }
+
+            throw e;
+        } finally {
+            entityManager.close();
+        }
+
+        for (SshKey sshKey : sshKeys) {
+            if (BCrypt.checkpw(apiKey, sshKey.getPublicKey())) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
