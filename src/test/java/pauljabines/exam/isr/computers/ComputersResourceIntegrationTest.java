@@ -309,7 +309,6 @@ public class ComputersResourceIntegrationTest extends JerseyTest {
                 .get();
 
         String contentType = response.getHeaderString(HttpHeaders.CONTENT_TYPE);
-        System.out.println(response.readEntity(String.class));
         assertEquals(MediaType.APPLICATION_JSON, contentType);
     }
 
@@ -330,6 +329,8 @@ public class ComputersResourceIntegrationTest extends JerseyTest {
         JSONObject computerJson = new JSONObject();
         computerJson.put("computer", computerJsonValue);
 
-        target("/create_computer").request().post(Entity.json(computerJson.toString()));
+        target("/create_computer").request()
+                .header("apikey", PUBLIC_KEY)
+                .post(Entity.json(computerJson.toString()));
     }
 }
