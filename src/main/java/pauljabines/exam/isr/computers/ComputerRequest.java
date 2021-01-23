@@ -25,8 +25,8 @@ public class ComputerRequest {
             return Status.NULL_VALUES_ENCOUNTERED;
         }
 
+        // maker is not validated because /create_computer maker param is deleted
         if (computer.type == null ||
-                computer.maker == null ||
                 computer.model == null ||
                 computer.language == null ||
                 computer.color == null) {
