@@ -7,6 +7,7 @@
         <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
         <class>pauljabines.exam.isr.computers.Computer</class>
         <class>pauljabines.exam.isr.apiclient.ApiClient</class>
+        <class>pauljabines.exam.isr.sshkey.SshKey</class>
         <properties>
             <property name="javax.persistence.jdbc.url" value="jdbc:postgresql://localhost:5436/computerskeys_test" />
             <property name="javax.persistence.jdbc.driver" value="org.postgresql.Driver" />

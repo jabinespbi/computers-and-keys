@@ -87,6 +87,7 @@ public class ComputersResource {
 
     private Response addColor(String color, Computer computer, EntityManager entityManager) {
         computer.addColor(Color.fromName(color));
+        computer.updateTimestamp();
 
         Response response;
         try {

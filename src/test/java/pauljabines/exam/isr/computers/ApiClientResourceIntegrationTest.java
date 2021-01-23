@@ -6,8 +6,6 @@ import org.json.JSONObject;
 import org.junit.Test;
 import pauljabines.exam.isr.apiclient.ApiClientResource;
 
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.HttpHeaders;
@@ -22,12 +20,10 @@ import static org.junit.Assert.assertEquals;
  * @author Paul Benedict Jabines
  */
 public class ApiClientResourceIntegrationTest extends JerseyTest {
-    static EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("ComputersKeys_Test");
-
     @Override
     protected Application configure() {
         ResourceConfig config = new ResourceConfig();
-        ApiClientResource apiClientResource = new ApiClientResource(entityManagerFactory);
+        ApiClientResource apiClientResource = new ApiClientResource(EmfSingleton.getINSTANCE().getEntityManagerFactory());
         config.register(apiClientResource);
         return config;
     }

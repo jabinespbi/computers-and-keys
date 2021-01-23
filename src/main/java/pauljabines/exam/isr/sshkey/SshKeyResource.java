@@ -1,4 +1,4 @@
-package pauljabines.exam.isr.apiclient;
+package pauljabines.exam.isr.sshkey;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -12,11 +12,11 @@ import javax.ws.rs.core.Response;
 /**
  * @author Paul Benedict Jabines
  */
-@Path("/api_client")
-public class ApiClientResource {
+@Path("/authorized_keys")
+public class SshKeyResource {
     private final EntityManagerFactory entityManagerFactory;
 
-    public ApiClientResource(EntityManagerFactory entityManagerFactory) {
+    public SshKeyResource(EntityManagerFactory entityManagerFactory) {
         this.entityManagerFactory = entityManagerFactory;
     }
 
@@ -24,13 +24,13 @@ public class ApiClientResource {
     @Path("/create")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    public Response create(ApiClientRequest apiClientRequest) {
-        ApiClientRequest.Status status = apiClientRequest.validate();
-        if (status.equals(ApiClientRequest.Status.TYPE_NOT_SUPPORTED)) {
+    public Response create(SshKeyRequest sshKeyRequest) {
+        SshKeyRequest.Status status = sshKeyRequest.validate();
+        if (status.equals(SshKeyRequest.Status.TYPE_NOT_SUPPORTED)) {
             return Response.status(406)
                     .entity("Type is not supported!")
                     .build();
-        } else if (status.equals(ApiClientRequest.Status.NULL_VALUES_ENCOUNTERED)) {
+        } else if (status.equals(SshKeyRequest.Status.NULL_VALUES_ENCOUNTERED)) {
             return Response.status(406)
                     .entity("Null values encountered!")
                     .build();
@@ -38,21 +38,22 @@ public class ApiClientResource {
 
         EntityManager entityManager = entityManagerFactory.createEntityManager();
 
-        ApiClient apiClient = apiClientRequest.toApiClient();
+        SshKey sshKey = sshKeyRequest.toSshKey();
         Response response;
         try {
             entityManager.getTransaction().begin();
-            entityManager.persist(apiClient);
+            entityManager.persist(sshKey);
             entityManager.getTransaction().commit();
 
             response = Response.status(201)
-                    .entity(ApiClientResponse.toApiClientResponse(apiClient))
+                    .entity(SshKeyResponse.toSshKeyResponse(sshKey))
                     .build();
         } catch (Exception e) {
             if (entityManager.getTransaction().isActive()) {
                 entityManager.getTransaction().rollback();
             }
 
+            e.printStackTrace();
             response = Response.status(500)
                     .entity("Internal server error! ")
                     .build();

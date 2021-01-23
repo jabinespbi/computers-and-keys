@@ -1,4 +1,4 @@
-package pauljabines.exam.isr.apiclient;
+package pauljabines.exam.isr.sshkey;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -13,7 +13,7 @@ import java.util.UUID;
  * @author Paul Benedict Jabines
  */
 @Entity
-public class ApiClient implements Serializable {
+public class SshKey implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
@@ -24,11 +24,15 @@ public class ApiClient implements Serializable {
 
     @Getter
     @Setter
-    private String name;
+    private Type type;
 
     @Getter
     @Setter
-    private Type type;
+    private String publicKey;
+
+    @Getter
+    @Setter
+    private String comment;
 
     @Getter
     private Timestamp createdTimestamp = Timestamp.from(Instant.now());
@@ -41,8 +45,8 @@ public class ApiClient implements Serializable {
     }
 
     public enum Type {
-        IT_USERS("IT User"),
-        API_ADMIN("Api Admin");
+        SSH_ED25519("ssh-ed25519"),
+        SSH_RSA("ssh-rsa");
 
         @Getter
         private String description;

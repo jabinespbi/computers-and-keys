@@ -1,0 +1,63 @@
+package pauljabines.exam.isr.sshkey;
+
+import lombok.Getter;
+
+/**
+ * @author Paul Benedict Jabines
+ */
+public class SshKeyRequest {
+
+    public SshKeyRequestBody sshKey;
+
+    public SshKey toSshKey() {
+        SshKey sshKey = new SshKey();
+        sshKey.setType(SshKey.Type.fromDescription(this.sshKey.type));
+        sshKey.setPublicKey(this.sshKey.publicKey);
+        sshKey.setComment(this.sshKey.comment);
+
+        return sshKey;
+    }
+
+    public Status validate() {
+        if (sshKey == null) {
+            return Status.NULL_VALUES_ENCOUNTERED;
+        }
+
+        if (sshKey.type == null ||
+                sshKey.publicKey == null ||
+                sshKey.comment == null) {
+            return Status.NULL_VALUES_ENCOUNTERED;
+        }
+
+        try {
+            SshKey.Type.fromDescription(sshKey.type);
+        } catch (IllegalArgumentException e) {
+            return Status.TYPE_NOT_SUPPORTED;
+        }
+        // TODO: validate public key and type
+
+        return Status.OK;
+    }
+
+    public static class SshKeyRequestBody {
+        public String type;
+
+        public String publicKey;
+
+        public String comment;
+    }
+
+    public enum Status {
+        TYPE_NOT_SUPPORTED("Type not supported!"),
+        KEY_INVALID("The content of the public key is invalid for the type ‘ssh-rsa’"),
+        NULL_VALUES_ENCOUNTERED("Null values encountered"),
+        OK("Ok");
+
+        @Getter
+        private String description;
+
+        Status(String description) {
+            this.description = description;
+        }
+    }
+}
