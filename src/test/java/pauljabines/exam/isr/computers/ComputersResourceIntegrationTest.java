@@ -20,6 +20,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
 
 public class ComputersResourceIntegrationTest extends JerseyTest {
+    private static final String PUBLIC_KEY = "AAAAC3NzaC1lZDI1NTE5AAAAIOiKKC7lLUcyvJMo1gjvMr56XvOq814Hhin0OCYFDqT4";
 
     @Override
     protected Application configure() {
@@ -279,8 +280,6 @@ public class ComputersResourceIntegrationTest extends JerseyTest {
         assertEquals(MediaType.APPLICATION_XML, contentType);
     }
 
-    private static final String PUBLIC_KEY = "AAAAC3NzaC1lZDI1NTE5AAAAIOiKKC7lLUcyvJMo1gjvMr56XvOq814Hhin0OCYFDqT4";
-
     private void createSshKey() {
         final String TYPE = "ssh-ed25519";
         final String COMMENT = "happy@isr";
@@ -295,5 +294,42 @@ public class ComputersResourceIntegrationTest extends JerseyTest {
 
         target("/authorized_keys/create").request(MediaType.APPLICATION_JSON)
                 .post(Entity.json(sshKeyJson.toString()));
+    }
+
+    @Test
+    public void getComputersByMaker_qFactorJsonPreferred_responseContentTypeIsJson() {
+        createSshKey();
+        createComputer();
+        createComputer();
+        createComputer();
+
+        Response response = target("/computers/ASUS")
+                .request("application/json;q=0.8,application/xml; q=0.2")
+                .header("apikey", PUBLIC_KEY)
+                .get();
+
+        String contentType = response.getHeaderString(HttpHeaders.CONTENT_TYPE);
+        System.out.println(response.readEntity(String.class));
+        assertEquals(MediaType.APPLICATION_JSON, contentType);
+    }
+
+    public void createComputer() {
+        final String TYPE = "laptop";
+        final String MAKER = "ASUS";
+        final String MODEL = "X507UA";
+        final String LANGUAGE = "日本語";
+        final String COLOR = "silver";
+
+        JSONObject computerJsonValue = new JSONObject();
+        computerJsonValue.put("type", TYPE);
+        computerJsonValue.put("maker", MAKER);
+        computerJsonValue.put("model", MODEL);
+        computerJsonValue.put("language", LANGUAGE);
+        computerJsonValue.put("color", COLOR);
+
+        JSONObject computerJson = new JSONObject();
+        computerJson.put("computer", computerJsonValue);
+
+        target("/create_computer").request().post(Entity.json(computerJson.toString()));
     }
 }
