@@ -1,10 +1,11 @@
-package pauljabines.exam.isr.computers;
+package pauljabines.exam.isr;
 
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import org.glassfish.jersey.test.TestProperties;
 import org.json.JSONObject;
 import org.junit.Test;
+import pauljabines.exam.isr.computers.ComputersResource;
 import pauljabines.exam.isr.sshkey.SshKeyResource;
 
 import javax.persistence.EntityManager;

@@ -1,4 +1,4 @@
-package pauljabines.exam.isr.computers;
+package pauljabines.exam.isr;
 
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
