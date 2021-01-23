@@ -21,6 +21,11 @@ import static org.junit.Assert.assertEquals;
 
 public class ComputersResourceIntegrationTest extends JerseyTest {
     private static final String PUBLIC_KEY = "AAAAC3NzaC1lZDI1NTE5AAAAIOiKKC7lLUcyvJMo1gjvMr56XvOq814Hhin0OCYFDqT4";
+    private static final String TYPE = "laptop";
+    private static final String MODEL = "X507UA";
+    private static final String MAKER = "asus";
+    private static final String LANGUAGE = "日本語";
+    private static final String COLOR = "silver";
 
     @Override
     protected Application configure() {
@@ -61,26 +66,7 @@ public class ComputersResourceIntegrationTest extends JerseyTest {
     @Test
     public void create_correctJson_responseIsComputer() {
         createSshKey();
-
-        final String TYPE = "laptop";
-        final String MAKER = "ASUS";
-        final String MODEL = "X507UA";
-        final String LANGUAGE = "日本語";
-        final String COLOR = "silver";
-
-        JSONObject computerJsonValue = new JSONObject();
-        computerJsonValue.put("type", TYPE);
-        computerJsonValue.put("maker", MAKER);
-        computerJsonValue.put("model", MODEL);
-        computerJsonValue.put("language", LANGUAGE);
-        computerJsonValue.put("color", COLOR);
-
-        JSONObject computerJson = new JSONObject();
-        computerJson.put("computer", computerJsonValue);
-
-        Response response = target("/create_computer").request(MediaType.APPLICATION_JSON)
-                .header("apikey", PUBLIC_KEY)
-                .post(Entity.json(computerJson.toString()));
+        Response response = createComputer();
 
         assertEquals("Http Response should be 201 ", Response.Status.CREATED.getStatusCode(), response.getStatus());
 
@@ -282,9 +268,11 @@ public class ComputersResourceIntegrationTest extends JerseyTest {
 
     private void createSshKey() {
         final String TYPE = "ssh-ed25519";
+        final String NAME = "asus";
         final String COMMENT = "happy@isr";
 
         JSONObject sshKeyJsonValue = new JSONObject();
+        sshKeyJsonValue.put("name", NAME);
         sshKeyJsonValue.put("type", TYPE);
         sshKeyJsonValue.put("publicKey", PUBLIC_KEY);
         sshKeyJsonValue.put("comment", COMMENT);
@@ -312,7 +300,7 @@ public class ComputersResourceIntegrationTest extends JerseyTest {
         assertEquals(MediaType.APPLICATION_JSON, contentType);
     }
 
-    public void createComputer() {
+    public Response createComputer() {
         final String TYPE = "laptop";
         final String MAKER = "ASUS";
         final String MODEL = "X507UA";
@@ -329,7 +317,7 @@ public class ComputersResourceIntegrationTest extends JerseyTest {
         JSONObject computerJson = new JSONObject();
         computerJson.put("computer", computerJsonValue);
 
-        target("/create_computer").request()
+        return target("/create_computer").request()
                 .header("apikey", PUBLIC_KEY)
                 .post(Entity.json(computerJson.toString()));
     }

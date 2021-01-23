@@ -12,6 +12,7 @@ public class SshKeyRequest {
 
     public SshKey toSshKey() {
         SshKey sshKey = new SshKey();
+        sshKey.setName(this.sshKey.name);
         sshKey.setType(SshKey.Type.fromDescription(this.sshKey.type));
 
         String salt = BCrypt.gensalt(BCRYPT_ROUNDS);
@@ -28,7 +29,8 @@ public class SshKeyRequest {
             return Status.NULL_VALUES_ENCOUNTERED;
         }
 
-        if (sshKey.type == null ||
+        if (sshKey.name == null ||
+                sshKey.type == null ||
                 sshKey.publicKey == null ||
                 sshKey.comment == null) {
             return Status.NULL_VALUES_ENCOUNTERED;
@@ -49,6 +51,8 @@ public class SshKeyRequest {
     }
 
     public static class SshKeyRequestBody {
+        public String name;
+
         public String type;
 
         public String publicKey;

@@ -36,11 +36,14 @@ public class ComputersResource {
                     .build();
         }
 
-        if (!shouldGrantAccess(apiKey)) {
+        SshKey sshKey = findSshKey(apiKey);
+        if (sshKey == null) {
             return Response.status(403)
                     .entity("Forbidden!")
                     .build();
         }
+
+        computerRequest.computer.maker = sshKey.getName();
 
         ComputerRequest.Status status = computerRequest.validate();
         if (status.equals(ComputerRequest.Status.COLOR_NOT_SUPPORTED)) {
@@ -175,7 +178,7 @@ public class ComputersResource {
         return computer;
     }
 
-    private boolean shouldGrantAccess(String apiKey) {
+    private SshKey findSshKey(String apiKey) {
         String query = "SELECT s FROM SshKey s";
 
         EntityManager entityManager = entityManagerFactory.createEntityManager();
@@ -198,18 +201,19 @@ public class ComputersResource {
 
         for (SshKey sshKey : sshKeys) {
             if (BCrypt.checkpw(apiKey, sshKey.getPublicKey())) {
-                return true;
+                return sshKey;
             }
         }
 
-        return false;
+        return null;
     }
 
     @GET
     @Path("/computers/{maker}")
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     public Response getComputersByMaker(@PathParam("maker") String maker, @HeaderParam("apikey") String apiKey) {
-        if (!shouldGrantAccess(apiKey)) {
+        SshKey sshKey = findSshKey(apiKey);
+        if (sshKey == null) {
             return Response.status(403)
                     .entity("Forbidden!")
                     .build();

@@ -24,6 +24,10 @@ public class SshKey implements Serializable {
 
     @Getter
     @Setter
+    private String name;
+
+    @Getter
+    @Setter
     private Type type;
 
     @Getter

@@ -22,6 +22,10 @@ import static org.junit.Assert.assertEquals;
  * @author Paul Benedict Jabines
  */
 public class SshKeyResourceIntegrationTest extends JerseyTest {
+    private static final String TYPE = "ssh-ed25519";
+    private static final String PUBLIC = "AAAAC3NzaC1lZDI1NTE5AAAAIOiKKC7lLUcyvJMo1gjvMr56XvOq814Hhin0OCYFDqT4";
+    private static final String NAME = "asus";
+    private static final String COMMENT = "happy@isr";
 
     @Override
     protected Application configure() {
@@ -56,12 +60,9 @@ public class SshKeyResourceIntegrationTest extends JerseyTest {
 
     @Test
     public void create_correctJson_responseIsSshKey() {
-        final String TYPE = "ssh-ed25519";
-        final String PUBLIC = "AAAAC3NzaC1lZDI1NTE5AAAAIOiKKC7lLUcyvJMo1gjvMr56XvOq814Hhin0OCYFDqT4";
-        final String COMMENT = "happy@isr";
-
         JSONObject sshKeyJsonValue = new JSONObject();
         sshKeyJsonValue.put("type", TYPE);
+        sshKeyJsonValue.put("name", NAME);
         sshKeyJsonValue.put("publicKey", PUBLIC);
         sshKeyJsonValue.put("comment", COMMENT);
 
@@ -78,18 +79,16 @@ public class SshKeyResourceIntegrationTest extends JerseyTest {
         JSONObject jsonValue = jsonObject.getJSONObject("sshKey");
 
         assertEquals(TYPE, jsonValue.getString("type"));
+        assertEquals(NAME, jsonValue.getString("name"));
         assertEquals(COMMENT, jsonValue.getString("comment"));
     }
 
     @Test
     public void create_JsonIncorrectType_responseIsNotSupported() {
-        final String TYPE = "unknown-type";
-        final String PUBLIC = "AAAAC3NzaC1lZDI1NTE5AAAAIOiKKC7lLUcyvJMo1gjvMr56XvOq814Hhin0OCYFDqT4";
-        final String COMMENT = "happy@isr";
-
         JSONObject sshKeyJsonValue = new JSONObject();
-        sshKeyJsonValue.put("type", TYPE);
+        sshKeyJsonValue.put("type", "unknown-type");
         sshKeyJsonValue.put("publicKey", PUBLIC);
+        sshKeyJsonValue.put("name", NAME);
         sshKeyJsonValue.put("comment", COMMENT);
 
         JSONObject sshKeyJson = new JSONObject();
@@ -119,12 +118,9 @@ public class SshKeyResourceIntegrationTest extends JerseyTest {
 
     @Test
     public void create_qFactorJsonPreferred_responseIsJson() {
-        final String TYPE = "ssh-ed25519";
-        final String PUBLIC = "AAAAC3NzaC1lZDI1NTE5AAAAIOiKKC7lLUcyvJMo1gjvMr56XvOq814Hhin0OCYFDqT4";
-        final String COMMENT = "happy@isr";
-
         JSONObject sshKeyJsonValue = new JSONObject();
         sshKeyJsonValue.put("type", TYPE);
+        sshKeyJsonValue.put("name", NAME);
         sshKeyJsonValue.put("publicKey", PUBLIC);
         sshKeyJsonValue.put("comment", COMMENT);
 
@@ -141,12 +137,9 @@ public class SshKeyResourceIntegrationTest extends JerseyTest {
 
     @Test
     public void create_qFactorXmlPreferred_responseIsXml() {
-        final String TYPE = "ssh-ed25519";
-        final String PUBLIC = "AAAAC3NzaC1lZDI1NTE5AAAAIOiKKC7lLUcyvJMo1gjvMr56XvOq814Hhin0OCYFDqT4";
-        final String COMMENT = "happy@isr";
-
         JSONObject sshKeyJsonValue = new JSONObject();
         sshKeyJsonValue.put("type", TYPE);
+        sshKeyJsonValue.put("name", NAME);
         sshKeyJsonValue.put("publicKey", PUBLIC);
         sshKeyJsonValue.put("comment", COMMENT);
 
@@ -163,13 +156,12 @@ public class SshKeyResourceIntegrationTest extends JerseyTest {
 
     @Test
     public void create_incorrectEdd25519_responseIs400() {
-        final String TYPE = "ssh-ed25519";
         final String PUBLIC = "aAAAAC3NzaC1lZDI1NTE5AAAAIOiKKC7lLUcyvJMo1gjvMr56XvOq814Hhin0OCYFDqT4";
-        final String COMMENT = "happy@isr";
 
         JSONObject sshKeyJsonValue = new JSONObject();
         sshKeyJsonValue.put("type", TYPE);
         sshKeyJsonValue.put("publicKey", PUBLIC);
+        sshKeyJsonValue.put("name", NAME);
         sshKeyJsonValue.put("comment", COMMENT);
 
         JSONObject sshKeyJson = new JSONObject();
@@ -189,6 +181,7 @@ public class SshKeyResourceIntegrationTest extends JerseyTest {
 
         JSONObject sshKeyJsonValue = new JSONObject();
         sshKeyJsonValue.put("type", TYPE);
+        sshKeyJsonValue.put("name", NAME);
         sshKeyJsonValue.put("publicKey", PUBLIC);
         sshKeyJsonValue.put("comment", COMMENT);
 
@@ -205,10 +198,10 @@ public class SshKeyResourceIntegrationTest extends JerseyTest {
     public void create_incorrectRsa_responseIs400() {
         final String TYPE = "ssh-rsa";
         final String PUBLIC = "AAAAC3NzaC1lZDI1NTE5AAAAIOiKKC7lLUcyvJMo1gjvMr56XvOq814Hhin0OCYFDqT4";
-        final String COMMENT = "happy@isr";
 
         JSONObject sshKeyJsonValue = new JSONObject();
         sshKeyJsonValue.put("type", TYPE);
+        sshKeyJsonValue.put("name", NAME);
         sshKeyJsonValue.put("publicKey", PUBLIC);
         sshKeyJsonValue.put("comment", COMMENT);
 
@@ -229,6 +222,7 @@ public class SshKeyResourceIntegrationTest extends JerseyTest {
 
         JSONObject sshKeyJsonValue = new JSONObject();
         sshKeyJsonValue.put("type", TYPE);
+        sshKeyJsonValue.put("name", NAME);
         sshKeyJsonValue.put("publicKey", PUBLIC);
         sshKeyJsonValue.put("comment", COMMENT);
 
