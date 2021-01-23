@@ -2,10 +2,12 @@ package pauljabines.exam.isr.computers;
 
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
+import org.glassfish.jersey.test.TestProperties;
 import org.json.JSONObject;
 import org.junit.Test;
 import pauljabines.exam.isr.sshkey.SshKeyResource;
 
+import javax.persistence.EntityManager;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.HttpHeaders;
@@ -23,10 +25,33 @@ public class SshKeyResourceIntegrationTest extends JerseyTest {
 
     @Override
     protected Application configure() {
+        forceSet(TestProperties.CONTAINER_PORT, "0");
+
         ResourceConfig config = new ResourceConfig();
         SshKeyResource sshKeyResource = new SshKeyResource(EmfSingleton.getINSTANCE().getEntityManagerFactory());
         config.register(sshKeyResource);
         return config;
+    }
+
+    @Override
+    public void tearDown() {
+        EntityManager entityManager = EmfSingleton.getINSTANCE()
+                .getEntityManagerFactory()
+                .createEntityManager();
+
+        try {
+            entityManager.getTransaction().begin();
+            entityManager.createQuery("DELETE FROM SshKey").executeUpdate();
+            entityManager.getTransaction().commit();
+        } catch (Exception e) {
+            if (entityManager.getTransaction().isActive()) {
+                entityManager.getTransaction().rollback();
+            }
+
+            throw e;
+        } finally {
+            entityManager.close();
+        }
     }
 
     @Test
@@ -108,6 +133,8 @@ public class SshKeyResourceIntegrationTest extends JerseyTest {
 
         Response response = target("/authorized_keys/create").request("application/json;q=0.8,application/xml; q=0.2")
                 .post(Entity.json(sshKeyJson.toString()));
+
+        assertEquals("Http Response should be 201 ", Response.Status.CREATED.getStatusCode(), response.getStatus());
         String contentType = response.getHeaderString(HttpHeaders.CONTENT_TYPE);
         assertEquals(MediaType.APPLICATION_JSON, contentType);
     }
@@ -128,6 +155,8 @@ public class SshKeyResourceIntegrationTest extends JerseyTest {
 
         Response response = target("/authorized_keys/create").request("application/json;q=0.1,application/xml; q=0.9")
                 .post(Entity.json(sshKeyJson.toString()));
+
+        assertEquals("Http Response should be 201 ", Response.Status.CREATED.getStatusCode(), response.getStatus());
         String contentType = response.getHeaderString(HttpHeaders.CONTENT_TYPE);
         assertEquals(MediaType.APPLICATION_XML, contentType);
     }
