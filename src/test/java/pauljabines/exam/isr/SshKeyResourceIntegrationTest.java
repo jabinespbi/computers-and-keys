@@ -26,6 +26,7 @@ public class SshKeyResourceIntegrationTest extends JerseyTest {
     private static final String PUBLIC = "AAAAC3NzaC1lZDI1NTE5AAAAIOiKKC7lLUcyvJMo1gjvMr56XvOq814Hhin0OCYFDqT4";
     private static final String NAME = "asus";
     private static final String COMMENT = "happy@isr";
+    private static final String ACCESS_RIGHTS_IT_SUPPLIER = "it_supplier";
 
     @Override
     protected Application configure() {
@@ -65,6 +66,7 @@ public class SshKeyResourceIntegrationTest extends JerseyTest {
         sshKeyJsonValue.put("name", NAME);
         sshKeyJsonValue.put("publicKey", PUBLIC);
         sshKeyJsonValue.put("comment", COMMENT);
+        sshKeyJsonValue.put("accessRights", ACCESS_RIGHTS_IT_SUPPLIER);
 
         JSONObject sshKeyJson = new JSONObject();
         sshKeyJson.put("sshKey", sshKeyJsonValue);
@@ -81,6 +83,7 @@ public class SshKeyResourceIntegrationTest extends JerseyTest {
         assertEquals(TYPE, jsonValue.getString("type"));
         assertEquals(NAME, jsonValue.getString("name"));
         assertEquals(COMMENT, jsonValue.getString("comment"));
+        assertEquals(ACCESS_RIGHTS_IT_SUPPLIER, jsonValue.getString("accessRights"));
     }
 
     @Test
@@ -90,6 +93,7 @@ public class SshKeyResourceIntegrationTest extends JerseyTest {
         sshKeyJsonValue.put("publicKey", PUBLIC);
         sshKeyJsonValue.put("name", NAME);
         sshKeyJsonValue.put("comment", COMMENT);
+        sshKeyJsonValue.put("accessRights", ACCESS_RIGHTS_IT_SUPPLIER);
 
         JSONObject sshKeyJson = new JSONObject();
         sshKeyJson.put("sshKey", sshKeyJsonValue);
@@ -99,6 +103,25 @@ public class SshKeyResourceIntegrationTest extends JerseyTest {
 
         assertEquals("Http Response should be 406 ", Response.Status.NOT_ACCEPTABLE.getStatusCode(), response.getStatus());
         assertThat(response.readEntity(String.class), equalTo("Type is not supported!"));
+    }
+
+    @Test
+    public void create_JsonIncorrectAccessRights_responseIsNotSupported() {
+        JSONObject sshKeyJsonValue = new JSONObject();
+        sshKeyJsonValue.put("type", "ssh-ed25519");
+        sshKeyJsonValue.put("publicKey", PUBLIC);
+        sshKeyJsonValue.put("name", NAME);
+        sshKeyJsonValue.put("comment", COMMENT);
+        sshKeyJsonValue.put("accessRights", "invalid");
+
+        JSONObject sshKeyJson = new JSONObject();
+        sshKeyJson.put("sshKey", sshKeyJsonValue);
+
+        Response response = target("/authorized_keys/create").request(MediaType.APPLICATION_JSON)
+                .post(Entity.json(sshKeyJson.toString()));
+
+        assertEquals("Http Response should be 406 ", Response.Status.NOT_ACCEPTABLE.getStatusCode(), response.getStatus());
+        assertThat(response.readEntity(String.class), equalTo("Access rights is not supported!"));
     }
 
     @Test
@@ -123,6 +146,7 @@ public class SshKeyResourceIntegrationTest extends JerseyTest {
         sshKeyJsonValue.put("name", NAME);
         sshKeyJsonValue.put("publicKey", PUBLIC);
         sshKeyJsonValue.put("comment", COMMENT);
+        sshKeyJsonValue.put("accessRights", ACCESS_RIGHTS_IT_SUPPLIER);
 
         JSONObject sshKeyJson = new JSONObject();
         sshKeyJson.put("sshKey", sshKeyJsonValue);
@@ -142,6 +166,7 @@ public class SshKeyResourceIntegrationTest extends JerseyTest {
         sshKeyJsonValue.put("name", NAME);
         sshKeyJsonValue.put("publicKey", PUBLIC);
         sshKeyJsonValue.put("comment", COMMENT);
+        sshKeyJsonValue.put("accessRights", ACCESS_RIGHTS_IT_SUPPLIER);
 
         JSONObject sshKeyJson = new JSONObject();
         sshKeyJson.put("sshKey", sshKeyJsonValue);
@@ -163,6 +188,7 @@ public class SshKeyResourceIntegrationTest extends JerseyTest {
         sshKeyJsonValue.put("publicKey", PUBLIC);
         sshKeyJsonValue.put("name", NAME);
         sshKeyJsonValue.put("comment", COMMENT);
+        sshKeyJsonValue.put("accessRights", ACCESS_RIGHTS_IT_SUPPLIER);
 
         JSONObject sshKeyJson = new JSONObject();
         sshKeyJson.put("sshKey", sshKeyJsonValue);
@@ -184,6 +210,7 @@ public class SshKeyResourceIntegrationTest extends JerseyTest {
         sshKeyJsonValue.put("name", NAME);
         sshKeyJsonValue.put("publicKey", PUBLIC);
         sshKeyJsonValue.put("comment", COMMENT);
+        sshKeyJsonValue.put("accessRights", ACCESS_RIGHTS_IT_SUPPLIER);
 
         JSONObject sshKeyJson = new JSONObject();
         sshKeyJson.put("sshKey", sshKeyJsonValue);
@@ -204,6 +231,7 @@ public class SshKeyResourceIntegrationTest extends JerseyTest {
         sshKeyJsonValue.put("name", NAME);
         sshKeyJsonValue.put("publicKey", PUBLIC);
         sshKeyJsonValue.put("comment", COMMENT);
+        sshKeyJsonValue.put("accessRights", ACCESS_RIGHTS_IT_SUPPLIER);
 
         JSONObject sshKeyJson = new JSONObject();
         sshKeyJson.put("sshKey", sshKeyJsonValue);
@@ -225,6 +253,7 @@ public class SshKeyResourceIntegrationTest extends JerseyTest {
         sshKeyJsonValue.put("name", NAME);
         sshKeyJsonValue.put("publicKey", PUBLIC);
         sshKeyJsonValue.put("comment", COMMENT);
+        sshKeyJsonValue.put("accessRights", ACCESS_RIGHTS_IT_SUPPLIER);
 
         JSONObject sshKeyJson = new JSONObject();
         sshKeyJson.put("sshKey", sshKeyJsonValue);

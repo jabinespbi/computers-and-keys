@@ -32,6 +32,10 @@ public class SshKey implements Serializable {
 
     @Getter
     @Setter
+    private AccessRights accessRights;
+
+    @Getter
+    @Setter
     private String publicKey;
 
     @Getter
@@ -71,6 +75,29 @@ public class SshKey implements Serializable {
             }
 
             throw new IllegalArgumentException("Type not found!");
+        }
+    }
+
+    public enum AccessRights {
+        IT_SUPPLIER("it_supplier"),
+        BIG_IT_SUPPLIER("big_it_supplier"),
+        COMPUTER_CREATOR("computer_creator");
+
+        @Getter
+        private String name;
+
+        AccessRights(String name) {
+            this.name = name;
+        }
+
+        public static AccessRights fromName(String name) {
+            for (AccessRights accessRights : AccessRights.values()) {
+                if (accessRights.name.equalsIgnoreCase(name)) {
+                    return accessRights;
+                }
+            }
+
+            throw new IllegalArgumentException("AccessRights not found!");
         }
     }
 }

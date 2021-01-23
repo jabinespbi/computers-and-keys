@@ -20,6 +20,7 @@ public class SshKeyRequest {
 
         sshKey.setPublicKey(hashedKey);
         sshKey.setComment(this.sshKey.comment);
+        sshKey.setAccessRights(SshKey.AccessRights.fromName(this.sshKey.accessRights));
 
         return sshKey;
     }
@@ -32,7 +33,8 @@ public class SshKeyRequest {
         if (sshKey.name == null ||
                 sshKey.type == null ||
                 sshKey.publicKey == null ||
-                sshKey.comment == null) {
+                sshKey.comment == null ||
+                sshKey.accessRights == null) {
             return Status.NULL_VALUES_ENCOUNTERED;
         }
 
@@ -41,6 +43,12 @@ public class SshKeyRequest {
             type = SshKey.Type.fromDescription(sshKey.type);
         } catch (IllegalArgumentException e) {
             return Status.TYPE_NOT_SUPPORTED;
+        }
+
+        try {
+            SshKey.AccessRights.fromName(sshKey.accessRights);
+        } catch (IllegalArgumentException e) {
+            return Status.ACCESS_RIGHTS_NOT_SUPPORTED;
         }
 
         if (!type.getSshKeyValidator().isValid(sshKey.publicKey)) {
@@ -58,10 +66,13 @@ public class SshKeyRequest {
         public String publicKey;
 
         public String comment;
+
+        public String accessRights;
     }
 
     public enum Status {
         TYPE_NOT_SUPPORTED("Type not supported!"),
+        ACCESS_RIGHTS_NOT_SUPPORTED("Access rights not supported!"),
         KEY_INVALID("The content of the public key is invalid for the type ‘ssh-rsa’"),
         NULL_VALUES_ENCOUNTERED("Null values encountered"),
         OK("Ok");
