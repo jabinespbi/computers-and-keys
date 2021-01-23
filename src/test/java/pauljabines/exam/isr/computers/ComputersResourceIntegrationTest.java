@@ -5,8 +5,6 @@ import org.glassfish.jersey.test.JerseyTest;
 import org.json.JSONObject;
 import org.junit.Test;
 
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.HttpHeaders;
@@ -19,12 +17,11 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
 
 public class ComputersResourceIntegrationTest extends JerseyTest {
-    static EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("ComputersKeys_Test");
 
     @Override
     protected Application configure() {
         ResourceConfig config = new ResourceConfig();
-        ComputersResource computersResource = new ComputersResource(entityManagerFactory);
+        ComputersResource computersResource = new ComputersResource(EmfSingleton.getINSTANCE().getEntityManagerFactory());
         config.register(computersResource);
         return config;
     }
