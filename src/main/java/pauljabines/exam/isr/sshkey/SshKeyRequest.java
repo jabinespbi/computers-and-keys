@@ -34,12 +34,16 @@ public class SshKeyRequest {
             return Status.NULL_VALUES_ENCOUNTERED;
         }
 
+        SshKey.Type type;
         try {
-            SshKey.Type.fromDescription(sshKey.type);
+            type = SshKey.Type.fromDescription(sshKey.type);
         } catch (IllegalArgumentException e) {
             return Status.TYPE_NOT_SUPPORTED;
         }
-        // TODO: validate public key and type
+
+        if (!type.getSshKeyValidator().isValid(sshKey.publicKey)) {
+            return Status.KEY_INVALID;
+        }
 
         return Status.OK;
     }

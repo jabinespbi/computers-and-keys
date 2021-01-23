@@ -45,14 +45,18 @@ public class SshKey implements Serializable {
     }
 
     public enum Type {
-        SSH_ED25519("ssh-ed25519"),
-        SSH_RSA("ssh-rsa");
+        SSH_ED25519("ssh-ed25519", new Ed25519SshKeyValidator()),
+        SSH_RSA("ssh-rsa", new RsaSshKeyValidator());
 
         @Getter
         private String description;
 
-        Type(String description) {
+        @Getter
+        private SshKeyValidator sshKeyValidator;
+
+        Type(String description, SshKeyValidator sshKeyValidator) {
             this.description = description;
+            this.sshKeyValidator = sshKeyValidator;
         }
 
         public static Type fromDescription(String description) {
