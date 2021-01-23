@@ -53,7 +53,6 @@ public class SshKeyResourceIntegrationTest extends JerseyTest {
         JSONObject jsonValue = jsonObject.getJSONObject("sshKey");
 
         assertEquals(TYPE, jsonValue.getString("type"));
-        assertEquals(PUBLIC, jsonValue.getString("publicKey"));
         assertEquals(COMMENT, jsonValue.getString("comment"));
     }
 
