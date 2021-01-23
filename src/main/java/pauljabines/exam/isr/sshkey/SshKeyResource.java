@@ -34,6 +34,9 @@ public class SshKeyResource {
             return Response.status(406)
                     .entity("Null values encountered!")
                     .build();
+        } else if (status.equals(SshKeyRequest.Status.KEY_INVALID)) {
+            return Response.status(400, "The content of the public key is invalid for the type 'ssh-rsa'")
+                    .build();
         }
 
         EntityManager entityManager = entityManagerFactory.createEntityManager();

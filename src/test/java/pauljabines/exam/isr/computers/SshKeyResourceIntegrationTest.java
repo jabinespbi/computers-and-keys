@@ -160,4 +160,84 @@ public class SshKeyResourceIntegrationTest extends JerseyTest {
         String contentType = response.getHeaderString(HttpHeaders.CONTENT_TYPE);
         assertEquals(MediaType.APPLICATION_XML, contentType);
     }
+
+    @Test
+    public void create_incorrectEdd25519_responseIs400() {
+        final String TYPE = "ssh-ed25519";
+        final String PUBLIC = "aAAAAC3NzaC1lZDI1NTE5AAAAIOiKKC7lLUcyvJMo1gjvMr56XvOq814Hhin0OCYFDqT4";
+        final String COMMENT = "happy@isr";
+
+        JSONObject sshKeyJsonValue = new JSONObject();
+        sshKeyJsonValue.put("type", TYPE);
+        sshKeyJsonValue.put("publicKey", PUBLIC);
+        sshKeyJsonValue.put("comment", COMMENT);
+
+        JSONObject sshKeyJson = new JSONObject();
+        sshKeyJson.put("sshKey", sshKeyJsonValue);
+
+        Response response = target("/authorized_keys/create").request(MediaType.APPLICATION_JSON)
+                .post(Entity.json(sshKeyJson.toString()));
+
+        assertEquals("Http Response should be 400 ", Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
+    }
+
+    @Test
+    public void create_correctEd25519_responseIs201() {
+        final String TYPE = "ssh-ed25519";
+        final String PUBLIC = "AAAAC3NzaC1lZDI1NTE5AAAAIOiKKC7lLUcyvJMo1gjvMr56XvOq814Hhin0OCYFDqT4";
+        final String COMMENT = "happy@isr";
+
+        JSONObject sshKeyJsonValue = new JSONObject();
+        sshKeyJsonValue.put("type", TYPE);
+        sshKeyJsonValue.put("publicKey", PUBLIC);
+        sshKeyJsonValue.put("comment", COMMENT);
+
+        JSONObject sshKeyJson = new JSONObject();
+        sshKeyJson.put("sshKey", sshKeyJsonValue);
+
+        Response response = target("/authorized_keys/create").request(MediaType.APPLICATION_JSON)
+                .post(Entity.json(sshKeyJson.toString()));
+
+        assertEquals("Http Response should be 201 ", Response.Status.CREATED.getStatusCode(), response.getStatus());
+    }
+
+    @Test
+    public void create_incorrectRsa_responseIs400() {
+        final String TYPE = "ssh-rsa";
+        final String PUBLIC = "AAAAC3NzaC1lZDI1NTE5AAAAIOiKKC7lLUcyvJMo1gjvMr56XvOq814Hhin0OCYFDqT4";
+        final String COMMENT = "happy@isr";
+
+        JSONObject sshKeyJsonValue = new JSONObject();
+        sshKeyJsonValue.put("type", TYPE);
+        sshKeyJsonValue.put("publicKey", PUBLIC);
+        sshKeyJsonValue.put("comment", COMMENT);
+
+        JSONObject sshKeyJson = new JSONObject();
+        sshKeyJson.put("sshKey", sshKeyJsonValue);
+
+        Response response = target("/authorized_keys/create").request(MediaType.APPLICATION_JSON)
+                .post(Entity.json(sshKeyJson.toString()));
+
+        assertEquals("Http Response should be 400 ", Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
+    }
+
+    @Test
+    public void create_correctRsa_responseIs201() {
+        final String TYPE = "ssh-rsa";
+        final String PUBLIC = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAyNG36i8crlmdpYHgV/s/9h+UobLIMlqX8CMjXvIOiJs35ttivYs1F4snp85vj62XtBBt7QVJEJqfHpMsFonCwP8qWEdToulvHpawY9ZJKEsNZt9NpEowMMjCycXFWJyV40WTvcmSU9x3mrViXm2y+kxmTXlAqVPlaZyWX5i249gX9zOrQ1s0KY9j65gqZ/bpcM/okmXK0OABtOnYCZlICU2Kjwccd+HRpvjbR8UWNtodSRz4wYFCtcpre0QEysqhCnG7NQEFKubZXGDxMmnM4f5hXT4vib/xcarVO6ip2OuRcW3HOGcimq1a5/ujdXEgQqXsgYpqrhCHVflGqPBSgQIDAQAB";
+        final String COMMENT = "happy@isr";
+
+        JSONObject sshKeyJsonValue = new JSONObject();
+        sshKeyJsonValue.put("type", TYPE);
+        sshKeyJsonValue.put("publicKey", PUBLIC);
+        sshKeyJsonValue.put("comment", COMMENT);
+
+        JSONObject sshKeyJson = new JSONObject();
+        sshKeyJson.put("sshKey", sshKeyJsonValue);
+
+        Response response = target("/authorized_keys/create").request(MediaType.APPLICATION_JSON)
+                .post(Entity.json(sshKeyJson.toString()));
+
+        assertEquals("Http Response should be 201 ", Response.Status.CREATED.getStatusCode(), response.getStatus());
+    }
 }

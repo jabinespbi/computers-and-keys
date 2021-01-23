@@ -140,7 +140,7 @@ public class ComputersResource {
     @GET
     @Path("/computers/{maker}/{model}")
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    public Response get(
+    public Response getByMakerModel(
             @PathParam("maker") String maker,
             @PathParam("model") String model) {
         Computer computer = findComputerByMakerModel(maker, model);
