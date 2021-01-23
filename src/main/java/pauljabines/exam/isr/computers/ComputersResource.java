@@ -204,4 +204,46 @@ public class ComputersResource {
 
         return false;
     }
+
+    @GET
+    @Path("/computers/{maker}")
+    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    public Response getComputersByMaker(@PathParam("maker") String maker, @HeaderParam("apikey") String apiKey) {
+        if (!shouldGrantAccess(apiKey)) {
+            return Response.status(403)
+                    .entity("Forbidden!")
+                    .build();
+        }
+
+        List<Computer> computers = findComputerByMaker(maker);
+        List<ComputerResponse> computerResponses = new ArrayList<>();
+
+        for (Computer computer : computers) {
+            ComputerResponse computerResponse = ComputerResponse.toComputerResponse(computer);
+            computerResponses.add(computerResponse);
+        }
+
+        return Response.status(200)
+                .entity(computerResponses)
+                .build();
+    }
+
+    private List<Computer> findComputerByMaker(String maker) {
+        String query = "SELECT c FROM Computer c where c.maker = :maker";
+
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        List<Computer> computers = new ArrayList<>();
+        try {
+            List<Computer> computersFromDb = entityManager.createQuery(query, Computer.class)
+                    .setParameter("maker", maker)
+                    .getResultList();
+
+            computers.addAll(computersFromDb);
+        } catch (NoResultException ignored) {
+        } finally {
+            entityManager.close();
+        }
+
+        return computers;
+    }
 }
