@@ -29,15 +29,24 @@ public class ComputersResource {
     @Path("/create_computer")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    public Response create(ComputerRequest computerRequest, @HeaderParam("apikey") String apiKey) {
+    public Response create(
+            ComputerRequest computerRequest,
+            @HeaderParam("apikey") String apiKey) {
         if (apiKey == null) {
-            return Response.status(403)
-                    .entity("Forbidden!")
+            return Response.status(406)
+                    .entity("Null values encountered!")
                     .build();
         }
 
         SshKey sshKey = findSshKey(apiKey);
         if (sshKey == null) {
+            return Response.status(403)
+                    .entity("Forbidden!")
+                    .build();
+        }
+
+        boolean notComputerCreator = !sshKey.getAccessRights().equals(SshKey.AccessRights.COMPUTER_CREATOR);
+        if (notComputerCreator) {
             return Response.status(403)
                     .entity("Forbidden!")
                     .build();
@@ -143,9 +152,31 @@ public class ComputersResource {
     @GET
     @Path("/computers/{maker}/{model}")
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    public Response getMakerModel(
+    public Response getByMakerModel(
             @PathParam("maker") String maker,
-            @PathParam("model") String model) {
+            @PathParam("model") String model,
+            @HeaderParam("apikey") String apiKey) {
+        if (apiKey == null) {
+            return Response.status(406)
+                    .entity("Null values encountered!")
+                    .build();
+        }
+
+        SshKey sshKey = findSshKey(apiKey);
+        if (sshKey == null) {
+            return Response.status(403)
+                    .entity("Forbidden!")
+                    .build();
+        }
+
+        boolean notItSupplier = !sshKey.getAccessRights().equals(SshKey.AccessRights.IT_SUPPLIER) &&
+                !sshKey.getAccessRights().equals(SshKey.AccessRights.BIG_IT_SUPPLIER);
+        if (notItSupplier) {
+            return Response.status(403)
+                    .entity("Forbidden!")
+                    .build();
+        }
+
         Computer computer = findComputerByMakerModel(maker, model);
 
         if (computer == null) {
@@ -178,6 +209,44 @@ public class ComputersResource {
         return computer;
     }
 
+    @GET
+    @Path("/computers/{maker}")
+    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    public Response getComputersByMaker(
+            @PathParam("maker") String maker,
+            @HeaderParam("apikey") String apiKey) {
+        if (apiKey == null) {
+            return Response.status(406)
+                    .entity("Null values encountered")
+                    .build();
+        }
+
+        SshKey sshKey = findSshKey(apiKey);
+        if (sshKey == null) {
+            return Response.status(406)
+                    .entity("Forbidden!")
+                    .build();
+        }
+
+        if (!sshKey.getAccessRights().equals(SshKey.AccessRights.BIG_IT_SUPPLIER)) {
+            return Response.status(403)
+                    .entity("Forbidden!")
+                    .build();
+        }
+
+        List<Computer> computers = findComputerByMaker(maker);
+        List<ComputerResponse> computerResponses = new ArrayList<>();
+
+        for (Computer computer : computers) {
+            ComputerResponse computerResponse = ComputerResponse.toComputerResponse(computer);
+            computerResponses.add(computerResponse);
+        }
+
+        return Response.status(200)
+                .entity(computerResponses)
+                .build();
+    }
+
     private SshKey findSshKey(String apiKey) {
         String query = "SELECT s FROM SshKey s";
 
@@ -206,30 +275,6 @@ public class ComputersResource {
         }
 
         return null;
-    }
-
-    @GET
-    @Path("/computers/{maker}")
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    public Response getComputersByMaker(@PathParam("maker") String maker, @HeaderParam("apikey") String apiKey) {
-        SshKey sshKey = findSshKey(apiKey);
-        if (sshKey == null) {
-            return Response.status(403)
-                    .entity("Forbidden!")
-                    .build();
-        }
-
-        List<Computer> computers = findComputerByMaker(maker);
-        List<ComputerResponse> computerResponses = new ArrayList<>();
-
-        for (Computer computer : computers) {
-            ComputerResponse computerResponse = ComputerResponse.toComputerResponse(computer);
-            computerResponses.add(computerResponse);
-        }
-
-        return Response.status(200)
-                .entity(computerResponses)
-                .build();
     }
 
     private List<Computer> findComputerByMaker(String maker) {

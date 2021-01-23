@@ -17,6 +17,7 @@ public class SshKeyResponse {
         sshKeyResponse.sshKey.type = sshKey.getType().getDescription();
         sshKeyResponse.sshKey.publicKey = sshKey.getPublicKey();
         sshKeyResponse.sshKey.comment = sshKey.getComment();
+        sshKeyResponse.sshKey.accessRights = sshKey.getAccessRights().getName();
 
         return sshKeyResponse;
     }
@@ -29,5 +30,7 @@ public class SshKeyResponse {
         public String publicKey;
 
         public String comment;
+
+        public String accessRights;
     }
 }

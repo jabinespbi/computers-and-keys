@@ -187,7 +187,7 @@ public class ComputersResourceIntegrationTest extends JerseyTest {
     }
 
     @Test
-    public void create_wrongSshKey_responseIsForbidden() {
+    public void create_computerWithWrongSshKey_responseIsForbidden() {
         createSshKey();
 
         final String TYPE = "laptop";
@@ -271,11 +271,13 @@ public class ComputersResourceIntegrationTest extends JerseyTest {
         final String TYPE = "ssh-ed25519";
         final String NAME = "asus";
         final String COMMENT = "happy@isr";
+        final String ACCESS_RIGHTS = "computer_creator";
 
         JSONObject sshKeyJsonValue = new JSONObject();
         sshKeyJsonValue.put("name", NAME);
         sshKeyJsonValue.put("type", TYPE);
         sshKeyJsonValue.put("publicKey", PUBLIC_KEY);
+        sshKeyJsonValue.put("accessRights", ACCESS_RIGHTS);
         sshKeyJsonValue.put("comment", COMMENT);
 
         JSONObject sshKeyJson = new JSONObject();
