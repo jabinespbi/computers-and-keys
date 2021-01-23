@@ -24,7 +24,7 @@ public class ComputersResource {
     @Path("/create_computer")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    public Response create(ComputerRequest computerRequest) {
+    public Response create(ComputerRequest computerRequest, @HeaderParam("apikey") String apiKey) {
         ComputerRequest.Status status = computerRequest.validate();
         if (status.equals(ComputerRequest.Status.COLOR_NOT_SUPPORTED)) {
             return Response.status(406)
