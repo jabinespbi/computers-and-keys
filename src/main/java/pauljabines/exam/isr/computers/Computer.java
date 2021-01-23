@@ -44,7 +44,7 @@ public class Computer implements Serializable {
     private String language;
 
     @Getter
-    @ElementCollection(targetClass = Color.class)
+    @ElementCollection(targetClass = Color.class, fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)
     @CollectionTable(name = "computer_colors")
     private final List<Color> colors = new ArrayList<>();
