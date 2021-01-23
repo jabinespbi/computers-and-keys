@@ -1,18 +1,23 @@
 package pauljabines.exam.isr.sshkey;
 
 import lombok.Getter;
+import org.mindrot.jbcrypt.BCrypt;
 
 /**
  * @author Paul Benedict Jabines
  */
 public class SshKeyRequest {
-
+    private static final int BCRYPT_ROUNDS = 10;
     public SshKeyRequestBody sshKey;
 
     public SshKey toSshKey() {
         SshKey sshKey = new SshKey();
         sshKey.setType(SshKey.Type.fromDescription(this.sshKey.type));
-        sshKey.setPublicKey(this.sshKey.publicKey);
+
+        String salt = BCrypt.gensalt(BCRYPT_ROUNDS);
+        String hashedKey = BCrypt.hashpw(this.sshKey.publicKey, salt);
+
+        sshKey.setPublicKey(hashedKey);
         sshKey.setComment(this.sshKey.comment);
 
         return sshKey;

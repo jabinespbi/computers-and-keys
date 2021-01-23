@@ -85,6 +85,12 @@
             <version>${org.json.version}</version>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>org.mindrot</groupId>
+            <artifactId>jbcrypt</artifactId>
+            <version>${jbcrypt.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -140,5 +146,6 @@
         <postgresql.version>42.2.10</postgresql.version>
         <lombok.version>1.18.16</lombok.version>
         <org.json.version>20201115</org.json.version>
+        <jbcrypt.version>0.4</jbcrypt.version>
     </properties>
 </project>
