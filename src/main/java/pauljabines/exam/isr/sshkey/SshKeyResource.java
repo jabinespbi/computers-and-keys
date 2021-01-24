@@ -27,19 +27,16 @@ public class SshKeyResource {
     public Response create(SshKeyRequest sshKeyRequest) {
         SshKeyRequest.Status status = sshKeyRequest.validate();
         if (status.equals(SshKeyRequest.Status.TYPE_NOT_SUPPORTED)) {
-            return Response.status(406)
-                    .entity("Type is not supported!")
+            return Response.status(406, "Type is not supported!")
                     .build();
         } else if (status.equals(SshKeyRequest.Status.NULL_VALUES_ENCOUNTERED)) {
-            return Response.status(406)
-                    .entity("Null values encountered!")
+            return Response.status(406, "Null values encountered!")
                     .build();
         } else if (status.equals(SshKeyRequest.Status.KEY_INVALID)) {
             return Response.status(400, "The content of the public key is invalid for the type 'ssh-rsa'")
                     .build();
         } else if (status.equals(SshKeyRequest.Status.ACCESS_RIGHTS_NOT_SUPPORTED)) {
-            return Response.status(406)
-                    .entity("Access rights is not supported!")
+            return Response.status(406, "Access rights is not supported!")
                     .build();
         }
 
@@ -60,8 +57,7 @@ public class SshKeyResource {
                 entityManager.getTransaction().rollback();
             }
 
-            response = Response.status(500)
-                    .entity("Internal server error! ")
+            response = Response.status(500,"Internal server error! ")
                     .build();
         } finally {
             entityManager.close();
