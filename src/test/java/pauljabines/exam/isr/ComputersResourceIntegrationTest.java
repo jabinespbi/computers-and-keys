@@ -107,7 +107,6 @@ public class ComputersResourceIntegrationTest extends JerseyTest {
                 .post(Entity.json(computerJson.toString()));
 
         assertEquals("Http Response should be 406 ", Response.Status.NOT_ACCEPTABLE.getStatusCode(), response.getStatus());
-        assertThat(response.readEntity(String.class), equalTo("Color is not supported!"));
     }
 
     @Test
@@ -125,7 +124,6 @@ public class ComputersResourceIntegrationTest extends JerseyTest {
                 .post(Entity.json(computerJson.toString()));
 
         assertEquals("Http Response should be 406 ", Response.Status.NOT_ACCEPTABLE.getStatusCode(), response.getStatus());
-        assertThat(response.readEntity(String.class), equalTo("Null values encountered!"));
     }
 
     @Test
@@ -215,8 +213,11 @@ public class ComputersResourceIntegrationTest extends JerseyTest {
 
     @Test
     public void get_qFactorJsonPreferred_responseContentTypeIsJson() {
+        createSshKeyWithComputerCreatorRights();
+        createComputer();
+
         final String TYPE = "laptop";
-        final String MAKER = "ASUS";
+        final String MAKER = "asus";
         final String MODEL = "X507UA";
         final String LANGUAGE = "日本語";
         final String COLOR = "silver";
@@ -242,8 +243,11 @@ public class ComputersResourceIntegrationTest extends JerseyTest {
 
     @Test
     public void get_qFactorXmlPreferred_responseContentTypeIsXml() {
+        createSshKeyWithComputerCreatorRights();
+        createComputer();
+
         final String TYPE = "laptop";
-        final String MAKER = "ASUS";
+        final String MAKER = "asus";
         final String MODEL = "X507UA";
         final String LANGUAGE = "日本語";
         final String COLOR = "silver";
@@ -375,7 +379,7 @@ public class ComputersResourceIntegrationTest extends JerseyTest {
         target("/authorized_keys/create").request(MediaType.APPLICATION_JSON)
                 .post(Entity.json(sshKeyJson.toString()));
 
-        Response response2 = target("/computers/ASUS")
+        Response response2 = target("/computers/asus")
                 .request("application/json;q=0.8,application/xml; q=0.2")
                 .header("apikey", PUBLIC_KEY_2)
                 .get();

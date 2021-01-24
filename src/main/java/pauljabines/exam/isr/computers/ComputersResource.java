@@ -33,22 +33,19 @@ public class ComputersResource {
             ComputerRequest computerRequest,
             @HeaderParam("apikey") String apiKey) {
         if (apiKey == null) {
-            return Response.status(403)
-                    .entity("Forbidden!")
+            return Response.status(403, "Forbidden!")
                     .build();
         }
 
         List<SshKey> sshKeys = findSshKey(apiKey);
         if (sshKeys.isEmpty()) {
-            return Response.status(403)
-                    .entity("Forbidden!")
+            return Response.status(403,"Forbidden!")
                     .build();
         }
 
         boolean notComputerCreator = !hasRights(sshKeys, SshKey.AccessRights.COMPUTER_CREATOR);
         if (notComputerCreator) {
-            return Response.status(403)
-                    .entity("Forbidden!")
+            return Response.status(403, "Forbidden!")
                     .build();
         }
 
@@ -56,12 +53,10 @@ public class ComputersResource {
 
         ComputerRequest.Status status = computerRequest.validate();
         if (status.equals(ComputerRequest.Status.COLOR_NOT_SUPPORTED)) {
-            return Response.status(406)
-                    .entity("Color is not supported!")
+            return Response.status(406,"Color is not supported!")
                     .build();
         } else if (status.equals(ComputerRequest.Status.NULL_VALUES_ENCOUNTERED)) {
-            return Response.status(406)
-                    .entity("Null values encountered!")
+            return Response.status(406,"Null values encountered!")
                     .build();
         }
 
@@ -159,7 +154,6 @@ public class ComputersResource {
 
         if (computer == null) {
             return Response.status(200)
-                    .entity("No computer found!")
                     .build();
         }
 
@@ -193,32 +187,33 @@ public class ComputersResource {
     public Response getComputersByMaker(
             @PathParam("maker") String maker,
             @HeaderParam("apikey") String apiKey) {
+        List<Computer> computers = new ArrayList<>();
+        if (maker != null) {
+            computers.addAll(findComputerByMaker(maker));
+            if (computers.isEmpty()) {
+                return Response.status(404, "Page not found!")
+                        .build();
+            }
+        }
+
         if (apiKey == null) {
-            return Response.status(403)
-                    .entity("Forbidden!")
+            return Response.status(403,"Forbidden!")
                     .build();
         }
 
         List<SshKey> sshKeys = findSshKey(apiKey);
         if (sshKeys.isEmpty()) {
-            return Response.status(403)
-                    .entity("Forbidden!")
+            return Response.status(403, "Forbidden!")
                     .build();
         }
 
         boolean isForbidden = !hasRights(sshKeys, SshKey.AccessRights.BIG_IT_SUPPLIER) &&
                 !hasRights(sshKeys, SshKey.AccessRights.COMPUTER_CREATOR);
         if (isForbidden) {
-            return Response.status(403)
-                    .entity("Forbidden!")
+            return Response.status(403,"Forbidden!")
                     .build();
         }
 
-        List<Computer> computers = findComputerByMaker(maker);
-        if(computers.isEmpty()) {
-            return Response.status(404, "Page not found!")
-                    .build();
-        }
         List<ComputerResponse> computerResponses = new ArrayList<>();
         for (Computer computer : computers) {
             ComputerResponse computerResponse = ComputerResponse.toComputerResponse(computer);

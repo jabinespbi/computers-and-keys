@@ -102,7 +102,6 @@ public class SshKeyResourceIntegrationTest extends JerseyTest {
                 .post(Entity.json(sshKeyJson.toString()));
 
         assertEquals("Http Response should be 406 ", Response.Status.NOT_ACCEPTABLE.getStatusCode(), response.getStatus());
-        assertThat(response.readEntity(String.class), equalTo("Type is not supported!"));
     }
 
     @Test
@@ -121,7 +120,6 @@ public class SshKeyResourceIntegrationTest extends JerseyTest {
                 .post(Entity.json(sshKeyJson.toString()));
 
         assertEquals("Http Response should be 406 ", Response.Status.NOT_ACCEPTABLE.getStatusCode(), response.getStatus());
-        assertThat(response.readEntity(String.class), equalTo("Access rights is not supported!"));
     }
 
     @Test
@@ -136,7 +134,6 @@ public class SshKeyResourceIntegrationTest extends JerseyTest {
                 .post(Entity.json(sshKeyJson.toString()));
 
         assertEquals("Http Response should be 406 ", Response.Status.NOT_ACCEPTABLE.getStatusCode(), response.getStatus());
-        assertThat(response.readEntity(String.class), equalTo("Null values encountered!"));
     }
 
     @Test
