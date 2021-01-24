@@ -33,8 +33,8 @@ public class ComputersResource {
             ComputerRequest computerRequest,
             @HeaderParam("apikey") String apiKey) {
         if (apiKey == null) {
-            return Response.status(406)
-                    .entity("Null values encountered!")
+            return Response.status(403)
+                    .entity("Forbidden!")
                     .build();
         }
 
@@ -169,14 +169,6 @@ public class ComputersResource {
                     .build();
         }
 
-        boolean notItSupplier = !sshKey.getAccessRights().equals(SshKey.AccessRights.IT_SUPPLIER) &&
-                !sshKey.getAccessRights().equals(SshKey.AccessRights.BIG_IT_SUPPLIER);
-        if (notItSupplier) {
-            return Response.status(403)
-                    .entity("Forbidden!")
-                    .build();
-        }
-
         Computer computer = findComputerByMakerModel(maker, model);
 
         if (computer == null) {
@@ -216,19 +208,21 @@ public class ComputersResource {
             @PathParam("maker") String maker,
             @HeaderParam("apikey") String apiKey) {
         if (apiKey == null) {
-            return Response.status(406)
-                    .entity("Null values encountered")
+            return Response.status(403)
+                    .entity("Forbidden!")
                     .build();
         }
 
         SshKey sshKey = findSshKey(apiKey);
         if (sshKey == null) {
-            return Response.status(406)
+            return Response.status(403)
                     .entity("Forbidden!")
                     .build();
         }
 
-        if (!sshKey.getAccessRights().equals(SshKey.AccessRights.BIG_IT_SUPPLIER)) {
+        boolean isForbidden = !sshKey.getAccessRights().equals(SshKey.AccessRights.BIG_IT_SUPPLIER) &&
+                !sshKey.getAccessRights().equals(SshKey.AccessRights.COMPUTER_CREATOR);
+        if (isForbidden) {
             return Response.status(403)
                     .entity("Forbidden!")
                     .build();

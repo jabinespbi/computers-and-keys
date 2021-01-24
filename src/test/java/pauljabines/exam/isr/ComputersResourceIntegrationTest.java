@@ -66,7 +66,7 @@ public class ComputersResourceIntegrationTest extends JerseyTest {
 
     @Test
     public void create_correctJson_responseIsComputer() {
-        createSshKey();
+        createSshKeyWithComputerCreatorRights();
         Response response = createComputer();
 
         assertEquals("Http Response should be 201 ", Response.Status.CREATED.getStatusCode(), response.getStatus());
@@ -84,7 +84,7 @@ public class ComputersResourceIntegrationTest extends JerseyTest {
 
     @Test
     public void create_JsonIncorrectColor_responseIsNotSupported() {
-        createSshKey();
+        createSshKeyWithComputerCreatorRights();
 
         final String TYPE = "laptop";
         final String MAKER = "ASUS";
@@ -112,7 +112,7 @@ public class ComputersResourceIntegrationTest extends JerseyTest {
 
     @Test
     public void create_JsonWithNull_responseIsNotAcceptable() {
-        createSshKey();
+        createSshKeyWithComputerCreatorRights();
 
         JSONObject computerJsonValue = new JSONObject();
         computerJsonValue.put("color", "silver");
@@ -130,7 +130,7 @@ public class ComputersResourceIntegrationTest extends JerseyTest {
 
     @Test
     public void create_qFactorJsonPreferred_responseIsJson() {
-        createSshKey();
+        createSshKeyWithComputerCreatorRights();
 
         final String TYPE = "laptop";
         final String MAKER = "ASUS";
@@ -159,7 +159,7 @@ public class ComputersResourceIntegrationTest extends JerseyTest {
 
     @Test
     public void create_qFactorXmlPreferred_responseIsXml() {
-        createSshKey();
+        createSshKeyWithComputerCreatorRights();
 
         final String TYPE = "laptop";
         final String MAKER = "ASUS";
@@ -188,7 +188,7 @@ public class ComputersResourceIntegrationTest extends JerseyTest {
 
     @Test
     public void create_computerWithWrongSshKey_responseIsForbidden() {
-        createSshKey();
+        createSshKeyWithComputerCreatorRights();
 
         final String TYPE = "laptop";
         final String MAKER = "ASUS";
@@ -267,29 +267,9 @@ public class ComputersResourceIntegrationTest extends JerseyTest {
         assertEquals(MediaType.APPLICATION_XML, contentType);
     }
 
-    private void createSshKey() {
-        final String TYPE = "ssh-ed25519";
-        final String NAME = "asus";
-        final String COMMENT = "happy@isr";
-        final String ACCESS_RIGHTS = "computer_creator";
-
-        JSONObject sshKeyJsonValue = new JSONObject();
-        sshKeyJsonValue.put("name", NAME);
-        sshKeyJsonValue.put("type", TYPE);
-        sshKeyJsonValue.put("publicKey", PUBLIC_KEY);
-        sshKeyJsonValue.put("accessRights", ACCESS_RIGHTS);
-        sshKeyJsonValue.put("comment", COMMENT);
-
-        JSONObject sshKeyJson = new JSONObject();
-        sshKeyJson.put("sshKey", sshKeyJsonValue);
-
-        target("/authorized_keys/create").request(MediaType.APPLICATION_JSON)
-                .post(Entity.json(sshKeyJson.toString()));
-    }
-
     @Test
     public void getComputersByMaker_qFactorJsonPreferred_responseContentTypeIsJson() {
-        createSshKey();
+        createSshKeyWithComputerCreatorRights();
         createComputer();
         createComputer();
         createComputer();
@@ -323,5 +303,143 @@ public class ComputersResourceIntegrationTest extends JerseyTest {
         return target("/create_computer").request()
                 .header("apikey", PUBLIC_KEY)
                 .post(Entity.json(computerJson.toString()));
+    }
+
+    @Test
+    public void create_computerWithBigItSupplierRights_responseIsForbidden() {
+        createSshKeyWithBigItSupplierRights();
+
+        final String TYPE = "laptop";
+        final String MAKER = "ASUS";
+        final String MODEL = "X507UA";
+        final String LANGUAGE = "日本語";
+        final String COLOR = "silver";
+
+        JSONObject computerJsonValue = new JSONObject();
+        computerJsonValue.put("type", TYPE);
+        computerJsonValue.put("maker", MAKER);
+        computerJsonValue.put("model", MODEL);
+        computerJsonValue.put("language", LANGUAGE);
+        computerJsonValue.put("color", COLOR);
+
+        JSONObject computerJson = new JSONObject();
+        computerJson.put("computer", computerJsonValue);
+
+        Response response = target("/create_computer").request(MediaType.APPLICATION_JSON)
+                .header("apikey", PUBLIC_KEY)
+                .post(Entity.json(computerJson.toString()));
+
+        assertEquals("Http Response should be 403 ", Response.Status.FORBIDDEN.getStatusCode(), response.getStatus());
+    }
+
+    @Test
+    public void getMaker_withItSupplierRights_responseIsForbidden() {
+        createSshKeyWithComputerCreatorRights();
+
+        final String TYPE = "laptop";
+        final String MAKER = "ASUS";
+        final String MODEL = "X507UA";
+        final String LANGUAGE = "日本語";
+        final String COLOR = "silver";
+
+        JSONObject computerJsonValue = new JSONObject();
+        computerJsonValue.put("type", TYPE);
+        computerJsonValue.put("maker", MAKER);
+        computerJsonValue.put("model", MODEL);
+        computerJsonValue.put("language", LANGUAGE);
+        computerJsonValue.put("color", COLOR);
+
+        JSONObject computerJson = new JSONObject();
+        computerJson.put("computer", computerJsonValue);
+
+        target("/create_computer").request(MediaType.APPLICATION_JSON)
+                .header("apikey", PUBLIC_KEY)
+                .post(Entity.json(computerJson.toString()));
+
+        final String SSH_TYPE = "ssh-ed25519";
+        final String NAME = "asus";
+        final String COMMENT = "happy@isr";
+        final String ACCESS_RIGHTS = "it_supplier";
+        final String PUBLIC_KEY_2 = "AAAAC3NzaC1lZDI1NTE5AAAAIOiKKC7lLUcyvJMo1gjvMr56XvOq814Hhin0OCYFDqT5";
+
+        JSONObject sshKeyJsonValue = new JSONObject();
+        sshKeyJsonValue.put("name", NAME);
+        sshKeyJsonValue.put("type", SSH_TYPE);
+        sshKeyJsonValue.put("publicKey", PUBLIC_KEY_2);
+        sshKeyJsonValue.put("accessRights", ACCESS_RIGHTS);
+        sshKeyJsonValue.put("comment", COMMENT);
+
+        JSONObject sshKeyJson = new JSONObject();
+        sshKeyJson.put("sshKey", sshKeyJsonValue);
+
+        target("/authorized_keys/create").request(MediaType.APPLICATION_JSON)
+                .post(Entity.json(sshKeyJson.toString()));
+
+        Response response2 = target("/computers/ASUS")
+                .request("application/json;q=0.8,application/xml; q=0.2")
+                .header("apikey", PUBLIC_KEY_2)
+                .get();
+
+        assertEquals("Http Response should be 403 ", Response.Status.FORBIDDEN.getStatusCode(), response2.getStatus());
+    }
+
+    private void createSshKeyWithComputerCreatorRights() {
+        final String TYPE = "ssh-ed25519";
+        final String NAME = "asus";
+        final String COMMENT = "happy@isr";
+        final String ACCESS_RIGHTS = "computer_creator";
+
+        JSONObject sshKeyJsonValue = new JSONObject();
+        sshKeyJsonValue.put("name", NAME);
+        sshKeyJsonValue.put("type", TYPE);
+        sshKeyJsonValue.put("publicKey", PUBLIC_KEY);
+        sshKeyJsonValue.put("accessRights", ACCESS_RIGHTS);
+        sshKeyJsonValue.put("comment", COMMENT);
+
+        JSONObject sshKeyJson = new JSONObject();
+        sshKeyJson.put("sshKey", sshKeyJsonValue);
+
+        target("/authorized_keys/create").request(MediaType.APPLICATION_JSON)
+                .post(Entity.json(sshKeyJson.toString()));
+    }
+
+    private void createSshKeyWithItSupplierRights() {
+        final String TYPE = "ssh-ed25519";
+        final String NAME = "asus";
+        final String COMMENT = "happy@isr";
+        final String ACCESS_RIGHTS = "it_supplier";
+
+        JSONObject sshKeyJsonValue = new JSONObject();
+        sshKeyJsonValue.put("name", NAME);
+        sshKeyJsonValue.put("type", TYPE);
+        sshKeyJsonValue.put("publicKey", PUBLIC_KEY);
+        sshKeyJsonValue.put("accessRights", ACCESS_RIGHTS);
+        sshKeyJsonValue.put("comment", COMMENT);
+
+        JSONObject sshKeyJson = new JSONObject();
+        sshKeyJson.put("sshKey", sshKeyJsonValue);
+
+        target("/authorized_keys/create").request(MediaType.APPLICATION_JSON)
+                .post(Entity.json(sshKeyJson.toString()));
+    }
+
+    private void createSshKeyWithBigItSupplierRights() {
+        final String TYPE = "ssh-ed25519";
+        final String NAME = "asus";
+        final String COMMENT = "happy@isr";
+        final String ACCESS_RIGHTS = "big_it_supplier";
+
+        JSONObject sshKeyJsonValue = new JSONObject();
+        sshKeyJsonValue.put("name", NAME);
+        sshKeyJsonValue.put("type", TYPE);
+        sshKeyJsonValue.put("publicKey", PUBLIC_KEY);
+        sshKeyJsonValue.put("accessRights", ACCESS_RIGHTS);
+        sshKeyJsonValue.put("comment", COMMENT);
+
+        JSONObject sshKeyJson = new JSONObject();
+        sshKeyJson.put("sshKey", sshKeyJsonValue);
+
+        target("/authorized_keys/create").request(MediaType.APPLICATION_JSON)
+                .post(Entity.json(sshKeyJson.toString()));
     }
 }
