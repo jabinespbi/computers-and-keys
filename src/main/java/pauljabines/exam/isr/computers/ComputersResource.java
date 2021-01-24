@@ -38,21 +38,21 @@ public class ComputersResource {
                     .build();
         }
 
-        SshKey sshKey = findSshKey(apiKey);
-        if (sshKey == null) {
+        List<SshKey> sshKeys = findSshKey(apiKey);
+        if (sshKeys.isEmpty()) {
             return Response.status(403)
                     .entity("Forbidden!")
                     .build();
         }
 
-        boolean notComputerCreator = !sshKey.getAccessRights().equals(SshKey.AccessRights.COMPUTER_CREATOR);
+        boolean notComputerCreator = !hasRights(sshKeys, SshKey.AccessRights.COMPUTER_CREATOR);
         if (notComputerCreator) {
             return Response.status(403)
                     .entity("Forbidden!")
                     .build();
         }
 
-        computerRequest.computer.maker = sshKey.getName();
+        computerRequest.computer.maker = makers(sshKeys);
 
         ComputerRequest.Status status = computerRequest.validate();
         if (status.equals(ComputerRequest.Status.COLOR_NOT_SUPPORTED)) {
@@ -154,21 +154,7 @@ public class ComputersResource {
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     public Response getByMakerModel(
             @PathParam("maker") String maker,
-            @PathParam("model") String model,
-            @HeaderParam("apikey") String apiKey) {
-        if (apiKey == null) {
-            return Response.status(406)
-                    .entity("Null values encountered!")
-                    .build();
-        }
-
-        SshKey sshKey = findSshKey(apiKey);
-        if (sshKey == null) {
-            return Response.status(403)
-                    .entity("Forbidden!")
-                    .build();
-        }
-
+            @PathParam("model") String model) {
         Computer computer = findComputerByMakerModel(maker, model);
 
         if (computer == null) {
@@ -213,15 +199,15 @@ public class ComputersResource {
                     .build();
         }
 
-        SshKey sshKey = findSshKey(apiKey);
-        if (sshKey == null) {
+        List<SshKey> sshKeys = findSshKey(apiKey);
+        if (sshKeys.isEmpty()) {
             return Response.status(403)
                     .entity("Forbidden!")
                     .build();
         }
 
-        boolean isForbidden = !sshKey.getAccessRights().equals(SshKey.AccessRights.BIG_IT_SUPPLIER) &&
-                !sshKey.getAccessRights().equals(SshKey.AccessRights.COMPUTER_CREATOR);
+        boolean isForbidden = !hasRights(sshKeys, SshKey.AccessRights.BIG_IT_SUPPLIER) &&
+                !hasRights(sshKeys, SshKey.AccessRights.COMPUTER_CREATOR);
         if (isForbidden) {
             return Response.status(403)
                     .entity("Forbidden!")
@@ -241,7 +227,7 @@ public class ComputersResource {
                 .build();
     }
 
-    private SshKey findSshKey(String apiKey) {
+    private List<SshKey> findSshKey(String apiKey) {
         String query = "SELECT s FROM SshKey s";
 
         EntityManager entityManager = entityManagerFactory.createEntityManager();
@@ -262,13 +248,14 @@ public class ComputersResource {
             entityManager.close();
         }
 
+        List<SshKey> keys = new ArrayList<>();
         for (SshKey sshKey : sshKeys) {
             if (BCrypt.checkpw(apiKey, sshKey.getPublicKey())) {
-                return sshKey;
+                keys.add(sshKey);
             }
         }
 
-        return null;
+        return keys;
     }
 
     private List<Computer> findComputerByMaker(String maker) {
@@ -288,5 +275,24 @@ public class ComputersResource {
         }
 
         return computers;
+    }
+
+    private boolean hasRights(List<SshKey> sshKeys, SshKey.AccessRights rights) {
+        for (SshKey sshKey : sshKeys) {
+            if (sshKey.getAccessRights().equals(rights)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private String makers(List<SshKey> sshKeys) {
+        StringBuilder stringBuilder = new StringBuilder();
+        for (SshKey sshKey : sshKeys) {
+            stringBuilder.append(sshKey.getName());
+        }
+
+        return stringBuilder.toString();
     }
 }
