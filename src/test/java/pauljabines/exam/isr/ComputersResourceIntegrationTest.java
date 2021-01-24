@@ -274,7 +274,7 @@ public class ComputersResourceIntegrationTest extends JerseyTest {
         createComputer();
         createComputer();
 
-        Response response = target("/computers/ASUS")
+        Response response = target("/computers/asus")
                 .request("application/json;q=0.8,application/xml; q=0.2")
                 .header("apikey", PUBLIC_KEY)
                 .get();
@@ -403,26 +403,6 @@ public class ComputersResourceIntegrationTest extends JerseyTest {
                 .post(Entity.json(sshKeyJson.toString()));
     }
 
-    private void createSshKeyWithItSupplierRights() {
-        final String TYPE = "ssh-ed25519";
-        final String NAME = "asus";
-        final String COMMENT = "happy@isr";
-        final String ACCESS_RIGHTS = "it_supplier";
-
-        JSONObject sshKeyJsonValue = new JSONObject();
-        sshKeyJsonValue.put("name", NAME);
-        sshKeyJsonValue.put("type", TYPE);
-        sshKeyJsonValue.put("publicKey", PUBLIC_KEY);
-        sshKeyJsonValue.put("accessRights", ACCESS_RIGHTS);
-        sshKeyJsonValue.put("comment", COMMENT);
-
-        JSONObject sshKeyJson = new JSONObject();
-        sshKeyJson.put("sshKey", sshKeyJsonValue);
-
-        target("/authorized_keys/create").request(MediaType.APPLICATION_JSON)
-                .post(Entity.json(sshKeyJson.toString()));
-    }
-
     private void createSshKeyWithBigItSupplierRights() {
         final String TYPE = "ssh-ed25519";
         final String NAME = "asus";
@@ -441,5 +421,18 @@ public class ComputersResourceIntegrationTest extends JerseyTest {
 
         target("/authorized_keys/create").request(MediaType.APPLICATION_JSON)
                 .post(Entity.json(sshKeyJson.toString()));
+    }
+
+    @Test
+    public void getComputersByMaker_withNoComputersByTheMaker_responseIs404() {
+        final String MAKER_WITH_NO_COMPUTER = "acer";
+        createSshKeyWithComputerCreatorRights();
+
+        Response response = target("/computers/" + MAKER_WITH_NO_COMPUTER)
+                .request()
+                .header("apikey", PUBLIC_KEY)
+                .get();
+
+        assertEquals("Http Response should be 404 ", Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
     }
 }

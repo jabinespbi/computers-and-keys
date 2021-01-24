@@ -215,8 +215,11 @@ public class ComputersResource {
         }
 
         List<Computer> computers = findComputerByMaker(maker);
+        if(computers.isEmpty()) {
+            return Response.status(404, "Page not found!")
+                    .build();
+        }
         List<ComputerResponse> computerResponses = new ArrayList<>();
-
         for (Computer computer : computers) {
             ComputerResponse computerResponse = ComputerResponse.toComputerResponse(computer);
             computerResponses.add(computerResponse);

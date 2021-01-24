@@ -60,7 +60,6 @@ public class SshKeyResource {
                 entityManager.getTransaction().rollback();
             }
 
-            e.printStackTrace();
             response = Response.status(500)
                     .entity("Internal server error! ")
                     .build();
